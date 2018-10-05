@@ -37,3 +37,5 @@ The syntax is similar to subscribing to a Reactive event, but less wordy and obt
 methodology (because that is far and above the best way to subscribe/unsubscribe from events).
 
 ## _If you are already using the Reactive framework, just use their event pattern.  This is a lightweight framework that just focuses on simple event subscription/unsubscription and nothing else._
+
+If you're using the EventAggregator or some other PubSub mechanism, this may be a better alternative b/c it is strongly typed when it can be, but allows loose typing with enums, too.  And it awaits all handlers!  Can be used in a global scope, or a local scope.
