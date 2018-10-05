@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Authors>Brent Bulla</Authors>
+    <Company>Brent Bulla, LLC</Company>
+    <Product>Broadcaster</Product>
+    <PackageId>Broadcaster.BetterEvents</PackageId>
+    <Description>Used to communicate events from object to subscribers instead of the standard .NET event system. Provides IDisposable tokens for unsubscribing and the ability to provide enums or objects are events/messages with or without payloads.</Description>
+    <Copyright>2018</Copyright>
+  </PropertyGroup>
+
+</Project>
