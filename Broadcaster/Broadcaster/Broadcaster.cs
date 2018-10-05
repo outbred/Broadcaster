@@ -11,7 +11,7 @@ namespace DisposableEvents
     ///
     /// All listeners to the event will be awaited in order as they subscribe.
     /// </summary>
-    public class Broadcaster
+    public class Broadcaster : IBroadcaster
     {
         private readonly List<Tuple<object, Func<Task>>> _subscribers = new List<Tuple<object, Func<Task>>>();
 
@@ -21,7 +21,7 @@ namespace DisposableEvents
         /// <typeparam name="TMessageType"></typeparam>
         /// <param name="message"></param>
         /// <param name="onBroadcast"></param>
-        /// <returns>Null if already subscribed, else an IDisposable token</returns>
+        /// <returns>Null if already subscribed, else an IDisposable token. Caller is responsible for lifetime of token!</returns>
         public IDisposable Listen<TMessageType>(TMessageType message, Func<Task> onBroadcast) where TMessageType : System.Enum
         {
             var tuple = new Tuple<object, Func<Task>>(message, onBroadcast);
@@ -55,5 +55,18 @@ namespace DisposableEvents
                 }
             }
         }
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (_subscribers.Any())
+            {
+                _subscribers.Clear();
+                GC.SuppressFinalize(this);
+            }
+        }
+
+        #endregion
     }
 }

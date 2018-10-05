@@ -14,7 +14,7 @@ namespace DisposableEvents
     ///
     /// All listeners to the message will be awaited in order as they subscribe.
     /// </summary>
-    public class BroadcasterWithPayload : IDisposable
+    public class BroadcasterWithPayload : IBroadcasterWithPayload
     {
         private readonly List<Tuple<object, Func<object, Task>>> _subscribers = new List<Tuple<object, Func<object, Task>>>();
 
