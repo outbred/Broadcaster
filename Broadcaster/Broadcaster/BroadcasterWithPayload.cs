@@ -31,6 +31,8 @@ namespace DisposableEvents
             if (_subscribers.Contains(tuple))
                 return null;
 
+            _subscribers.Add(tuple);
+
             var token = new ListenerToken(() => _subscribers.Remove(tuple));
             return token;
         }
@@ -48,6 +50,8 @@ namespace DisposableEvents
             var tuple = new Tuple<object, Func<object, Task>>(message, async arg => await onBroadcast((TPayload)arg));
             if (_subscribers.Contains(tuple))
                 return null;
+
+            _subscribers.Add(tuple);
 
             var token = new ListenerToken(() => _subscribers.Remove(tuple));
             return token;

@@ -28,6 +28,8 @@ namespace DisposableEvents
             if (_subscribers.Contains(tuple))
                 return null;
 
+            _subscribers.Add(tuple);
+
             var token = new ListenerToken(() => _subscribers.Remove(tuple));
             return token;
         }
