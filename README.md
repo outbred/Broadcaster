@@ -1,4 +1,4 @@
-# DisposableEvents
+# Broadcaster
 A system to replace clunky, memory-leak inducing, typical event subscriptions in .NET Standard. 
 
 Typcial event subscriptions like this:
@@ -29,7 +29,7 @@ If used correctly, this will never create a memory leak (emphasis on '*if*').  T
 UI still and probably will always require true events (marked with the *event* keyword) to latch onto, but for the rest of the business code,
 I think we'd all prefer something a bit...cleaner and easier to use.
 
-*DisposableEvents* provides a frameworkd for easily listening for, handling, and unsubscribing from events _that allows the use of lambdas (!!)_.  
+*Broadcaster* provides a frameworkd for easily listening for, handling, and unsubscribing from events _that allows the use of lambdas (!!)_.  
 It's a thing of beauty to use in a large application (which I have) and once this easy to use system is understood, it is simple to 
 unsubscribe to any and all events.  If you are familiar with the Reactive framework, then this will be right up your alley.
 
