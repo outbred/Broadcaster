@@ -21,10 +21,13 @@ namespace DisposableEvents
         /// <typeparam name="TMessageType"></typeparam>
         /// <param name="message"></param>
         /// <param name="onBroadcast"></param>
-        /// <returns></returns>
+        /// <returns>Null if already subscribed, else an IDisposable token</returns>
         public IDisposable Listen<TMessageType>(TMessageType message, Func<Task> onBroadcast) where TMessageType : System.Enum
         {
             var tuple = new Tuple<object, Func<Task>>(message, onBroadcast);
+            if (_subscribers.Contains(tuple))
+                return null;
+
             var token = new ListenerToken(() => _subscribers.Remove(tuple));
             return token;
         }

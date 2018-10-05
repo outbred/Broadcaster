@@ -24,10 +24,13 @@ namespace DisposableEvents
         /// <typeparam name="TMessageType"></typeparam>
         /// <param name="message"></param>
         /// <param name="onBroadcast"></param>
-        /// <returns>A disposable token. After it is disposed, the message handler is removed. Caller must maintain a reference to the token!</returns>
+        /// <returns>Null if already subscribed!  A disposable token. After it is disposed, the message handler is removed. Caller must maintain a reference to the token!</returns>
         public IDisposable Listen<TMessageType>(TMessageType message, Func<object, Task> onBroadcast) where TMessageType : System.Enum
         {
             var tuple = new Tuple<object, Func<object, Task>>(message, onBroadcast);
+            if (_subscribers.Contains(tuple))
+                return null;
+
             var token = new ListenerToken(() => _subscribers.Remove(tuple));
             return token;
         }
@@ -43,6 +46,9 @@ namespace DisposableEvents
         public IDisposable Listen<TMessageType, TPayload>(TMessageType message, Func<TPayload, Task> onBroadcast) where TMessageType : MessageWithPayload<TPayload>
         {
             var tuple = new Tuple<object, Func<object, Task>>(message, async arg => await onBroadcast((TPayload)arg));
+            if (_subscribers.Contains(tuple))
+                return null;
+
             var token = new ListenerToken(() => _subscribers.Remove(tuple));
             return token;
         }
