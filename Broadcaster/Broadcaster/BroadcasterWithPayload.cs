@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DisposableEvents
+namespace Broadcaster
 {
     /// <summary>
-    /// For use if you have messages to broadcast that also have payloads or data associated with them.  Can be used with enums, as well,
-    /// but you lose strong type support b/c of Microsoft's C# implementation limitations.
-    ///
-    /// With 7.0.3 C# language support, at least that only happens with enum-based messages.  Can still retain strong type safety with object
-    /// based messages that inherit from <typeparam name="MessageWithPayload"></typeparam>
+    /// For use if you have messages to broadcast that also have payloads or data associated with them.  All messages are Enums,
+    /// so you lose strong type support in the payload b/c of Microsoft's C# implementation limitations.
     ///
     /// All listeners to the message will be awaited in order as they subscribe.
     /// </summary>
-    public class BroadcasterWithPayload : IBroadcasterWithPayload
+    public class BroadcasterWithPayload<TMessageType> where TMessageType : System.Enum
     {
         private readonly List<Tuple<object, Func<object, Task>>> _subscribers = new List<Tuple<object, Func<object, Task>>>();
 
@@ -25,29 +24,9 @@ namespace DisposableEvents
         /// <param name="message"></param>
         /// <param name="onBroadcast"></param>
         /// <returns>Null if already subscribed!  A disposable token. After it is disposed, the message handler is removed. Caller must maintain a reference to the token!</returns>
-        public IDisposable Listen<TMessageType>(TMessageType message, Func<object, Task> onBroadcast) where TMessageType : System.Enum
+        public IDisposable Listen(TMessageType message, Func<object, Task> onBroadcast)
         {
             var tuple = new Tuple<object, Func<object, Task>>(message, onBroadcast);
-            if (_subscribers.Contains(tuple))
-                return null;
-
-            _subscribers.Add(tuple);
-
-            var token = new ListenerToken(() => _subscribers.Remove(tuple));
-            return token;
-        }
-
-        /// <summary>
-        /// Listen for object-based messages with strongly typed payloads
-        /// </summary>
-        /// <typeparam name="TMessageType"></typeparam>
-        /// <typeparam name="TPayload"></typeparam>
-        /// <param name="message"></param>
-        /// <param name="onBroadcast"></param>
-        /// <returns>A disposable token. After it is disposed, the message handler is removed. Caller must maintain a reference to the token!</returns>
-        public IDisposable Listen<TMessageType, TPayload>(TMessageType message, Func<TPayload, Task> onBroadcast) where TMessageType : MessageWithPayload<TPayload>
-        {
-            var tuple = new Tuple<object, Func<object, Task>>(message, async arg => await onBroadcast((TPayload)arg));
             if (_subscribers.Contains(tuple))
                 return null;
 
@@ -64,7 +43,7 @@ namespace DisposableEvents
         /// <param name="message"></param>
         /// <param name="payload"></param>
         /// <returns></returns>
-        public async Task Broadcast<TMessageType>(TMessageType message, object payload) where TMessageType : System.Enum
+        public async Task Broadcast(TMessageType message, object payload)
         {
             foreach (var match in _subscribers.Where(p => p.Item1 == (object)message))
             {
@@ -79,28 +58,35 @@ namespace DisposableEvents
             }
         }
 
-        /// <summary>
-        /// Broadcast object messages with a strongly typed payload. Each subscriber is awaited in order.
-        /// </summary>
-        /// <typeparam name="TMessageType"></typeparam>
-        /// <typeparam name="TPayload"></typeparam>
-        /// <param name="message"></param>
-        /// <param name="payload"></param>
-        /// <returns></returns>
-        public async Task Broadcast<TMessageType, TPayload>(TMessageType message, TPayload payload) where TMessageType : MessageWithPayload<TPayload>
+        #region IDisposable
+
+        public void Dispose()
         {
-            var messageType = message.GetType();
-            foreach (var match in _subscribers.Where(p => p.Item1.GetType() == messageType))
+            if (_subscribers.Any())
             {
-                try
-                {
-                    await match.Item2(payload);
-                }
-                catch (Exception ex)
-                {
-                    // todo: log it
-                }
+                _subscribers.Clear();
+                GC.SuppressFinalize(this);
             }
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// For use if you have messages to broadcast that also have payloads or data associated with them AND your messages are not Enum values. Follows the Event Aggregator pattern pretty closely
+    /// b/c there's no other way to do it with strong-type safety in the current implementation of C# w/o an annoying level of verbosity with each call
+    /// (even more than it is now)
+    ///
+    /// All listeners to the message will be awaited in order as they subscribe.
+    /// </summary>
+    public class BroadcasterWithPayload
+    {
+        internal readonly List<Tuple<Type, Func<object, Task>>> _subscribers = new List<Tuple<Type, Func<object, Task>>>();
+
+        public TMessageType Get<TMessageType>() where TMessageType : BaseMessage, new()
+        {
+            var evt = new TMessageType {Broadcaster = this};
+            return evt;
         }
 
         #region IDisposable

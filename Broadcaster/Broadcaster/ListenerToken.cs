@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DisposableEvents
+namespace Broadcaster
 {
     /// <summary>
     /// When disposed, performs some action
