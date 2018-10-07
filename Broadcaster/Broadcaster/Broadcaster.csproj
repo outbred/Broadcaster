@@ -6,7 +6,7 @@
     <Authors>Brent Bulla</Authors>
     <Company>Brent Bulla, LLC</Company>
     <Product>Broadcaster</Product>
-    <PackageId>Broadcaster.BetterEvents</PackageId>
+    <PackageId>Broadcaster.PubSub.Framework</PackageId>
     <Description>Used to communicate events from object to subscribers instead of the standard .NET event system. Provides IDisposable tokens for unsubscribing and the ability to provide enums or objects as events/messages with or without payloads.
 
 All handlers are awaited (and awaitable), unsubscription is dead simple, and the implemenations are lightweight.  Strongly typed where we can be, of course.</Description>
@@ -16,7 +16,7 @@ All handlers are awaited (and awaitable), unsubscription is dead simple, and the
     <RepositoryUrl>https://github.com/outbred/Broadcaster</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>pubsub, evnes, event-management, mediator, eventaggregator, broadcast-receiver</PackageTags>
-    <PackageReleaseNotes>Initial version with all passing unit tests.</PackageReleaseNotes>
+    <PackageReleaseNotes>Initial version with all passing unit tests.  Long-time in the brain and in working code, so there may not be many more releases after this...</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
