@@ -15,26 +15,7 @@ namespace Broadcaster
     /// </summary>
     public class BroadcasterWithPayload<TMessageType> where TMessageType : System.Enum
     {
-        private readonly List<Tuple<object, Func<object, Task>>> _subscribers = new List<Tuple<object, Func<object, Task>>>();
-
-        /// <summary>
-        /// Listen for enum-based messages with loosely typed payloads
-        /// </summary>
-        /// <typeparam name="TMessageType"></typeparam>
-        /// <param name="message"></param>
-        /// <param name="onBroadcast"></param>
-        /// <returns>Null if already subscribed!  A disposable token. After it is disposed, the message handler is removed. Caller must maintain a reference to the token!</returns>
-        public IDisposable Listen(TMessageType message, Func<object, Task> onBroadcast)
-        {
-            var tuple = new Tuple<object, Func<object, Task>>(message, onBroadcast);
-            if (_subscribers.Contains(tuple))
-                return null;
-
-            _subscribers.Add(tuple);
-
-            var token = new ListenerToken(() => _subscribers.Remove(tuple));
-            return token;
-        }
+        protected internal readonly List<Tuple<Enum, Func<object, Task>>> _subscribers = new List<Tuple<Enum, Func<object, Task>>>();
 
         /// <summary>
         /// Broadcast Enum based messages with a payload. Each subscriber is awaited in order.
@@ -45,7 +26,8 @@ namespace Broadcaster
         /// <returns></returns>
         public async Task Broadcast(TMessageType message, object payload)
         {
-            foreach (var match in _subscribers.Where(p => p.Item1 == (object)message))
+            var messageString = message.ToString();
+            foreach (var match in _subscribers.Where(p => p.Item1.ToString() == messageString))
             {
                 try
                 {
